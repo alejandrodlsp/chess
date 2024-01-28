@@ -24,6 +24,8 @@ black_knight_img = pygame.transform.scale(pygame.image.load("assets/pieces/black
 black_bishop_img = pygame.transform.scale(pygame.image.load("assets/pieces/black/Bishop.png"), (PIECE_SIZE, PIECE_SIZE))
 black_pawn_img = pygame.transform.scale(pygame.image.load("assets/pieces/black/Pawn.png"), (PIECE_SIZE, PIECE_SIZE))
 
+selected_piece = None
+
 def draw_board(screen, board):
     screen.blit(pygame.transform.scale(board_bg_img, (500, 500)), (0, 0))
     
@@ -32,6 +34,9 @@ def draw_board(screen, board):
             piece_asset = get_piece_image(piece)
             if piece_asset != None:
                 screen.blit(piece_asset, get_square_screen_pos(j, i))
+    
+    if selected_piece:
+        draw_highlighted_squares(screen, board)
 
 def get_piece_image(piece : Piece):
     if piece == None:
@@ -51,7 +56,7 @@ def get_piece_image(piece : Piece):
     return None
 
 def get_square_screen_pos(x, y):
-    spacing_x = x * PIECE_SPACING + BOARD_BORDER
+    spacing_x = x * PIECE_SPACING + BOARD_BORDER 
     spacing_y = y * PIECE_SPACING + BOARD_BORDER
     return (spacing_x, spacing_y)
 
@@ -64,7 +69,47 @@ def get_square_at_pos(pos):
     
     return (pos_x, pos_y)
 
-def handle_click_event(event, board : Board):
+def draw_highlighted_squares(screen, board):
+    global selected_piece
+
+    if not selected_piece:
+        return
+    
+    legal_moves = selected_piece.get_legal_moves(board)
+    if legal_moves:
+        for move in legal_moves:
+            pos = get_square_screen_pos(move.next_pos[0], move.next_pos[1])
+            pos = (pos[0] + PIECE_SPACING / 2, pos[1] + PIECE_SPACING / 2)
+            pygame.draw.circle(screen, (40, 20, 20), pos, 10)
+           
+def handle_click_event(event, screen, board : Board):
+    global selected_piece
+
     square = get_square_at_pos(event.pos)
-    piece = board.get_at_position(square)
-    print(piece.get_legal_moves(square, board))
+
+    if not square:
+        selected_piece = None # Deselect piece
+        return
+
+    new_selection = board.get_at_position(square)
+
+    # If piece is selected already
+    if selected_piece:
+        # If selecting an empty square, or selecting an enemy piece
+        if not new_selection or new_selection.color != board.current_turn:
+            board.check_for_move(selected_piece, square)
+            selected_piece = None
+
+        # If selecting a new piece from same color
+        else:
+            selected_piece = new_selection # Then we select new piece
+
+    elif not new_selection:
+        selected_piece = None # Deselect piece
+    # if no piece selected, and if selecting a piece from same color
+    elif new_selection.color == board.current_turn:
+        selected_piece = new_selection  # Select piece
+
+
+    screen.fill((0, 0, 0))
+    draw_board(screen, board)

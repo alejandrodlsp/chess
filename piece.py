@@ -1,6 +1,10 @@
 from enum import Enum
 from pieces.bishop import get_legal_moves as get_bishop_legal_moves
 from pieces.rook import get_legal_moves as get_rook_legal_moves
+from pieces.queen import get_legal_moves as get_queen_legal_moves
+from pieces.knight import get_legal_moves as get_knight_legal_moves
+from pieces.king import get_legal_moves as get_king_legal_moves
+from pieces.pawn import get_legal_moves as get_pawn_legal_moves
 
 class PieceType(Enum):
     KING = 1
@@ -16,7 +20,8 @@ class PieceColor(Enum):
     BLACK = 2
 
 class Piece:
-    def __init__(self, type = PieceType.PAWN, color = PieceColor.WHITE):
+    def __init__(self, pos, type = PieceType.PAWN, color = PieceColor.WHITE):
+        self.pos = pos
         self.type = type
         self.color = color
 
@@ -38,13 +43,28 @@ class Piece:
     def color(self):
         return self.color
     
-    def get_legal_moves(self, pos, board):
+    def get_legal_moves(self, board):
         if self.type == PieceType.BISHOP:
-            return get_bishop_legal_moves(pos, self.color, board)
+            return get_bishop_legal_moves(self, board)
         if self.type == PieceType.ROOK:
-            return get_rook_legal_moves(pos, self.color, board)
+            return get_rook_legal_moves(self, board)
+        if self.type == PieceType.QUEEN:
+            return get_queen_legal_moves(self, board)
+        if self.type == PieceType.KNIGHT:
+            return get_knight_legal_moves(self, board)
+        if self.type == PieceType.KING:
+            return get_king_legal_moves(self, board)
+        if self.type == PieceType.PAWN:
+            return get_pawn_legal_moves(self, board)
         else:
             return None
+        
+    def is_legal_move(self, board, newpos):
+        legal_moves = self.get_legal_moves(board)
+        for move in legal_moves:
+            if move.next_pos == newpos:
+                return move
+        return False
 
 def get_piece_type_from_char(char):
     if char.lower() == 'k':
@@ -59,7 +79,9 @@ def get_piece_type_from_char(char):
         return PieceType.KNIGHT
     if char.lower() == 'p':
         return PieceType.PAWN
-    return PieceType.EMPTY
+    return None
     
 def get_char_piece_color(char):
+    if char == '.':
+        return None
     return PieceColor.WHITE if char.isupper() else PieceColor.BLACK

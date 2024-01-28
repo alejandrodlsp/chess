@@ -7,7 +7,21 @@ Y_SIZE = 500
 
 running = True
 screen = None
-board = Board()
+
+pygame.mixer.init()
+move_sound = pygame.mixer.Sound("assets/sfx/move-self.mp3")
+check_sound = pygame.mixer.Sound("assets/sfx/check.mp3")
+capture_sound = pygame.mixer.Sound("assets/sfx/capture.mp3")
+
+def on_move(move):
+    if move.is_capture:
+        capture_sound.play()
+    elif move.is_check:
+        check_sound.play()
+    else:
+        move_sound.play()
+
+board = Board(on_move)
 
 def on_setup():
     draw.draw_board(screen, board)
@@ -20,7 +34,7 @@ def update_loop():
 
 def on_mouse_button_down(event):
     if event.button == 1:
-        draw.handle_click_event(event, board)
+        draw.handle_click_event(event, screen, board)
                     
 if __name__ == "__main__":
     pygame.init()
