@@ -4,23 +4,14 @@ class Move():
         self.next_pos = next_pos
         self.board = board
         self.piece = self.get_piece()
-        self.is_mate = self.is_mate()
-
+        self.capture_piece = self.capture_piece()
+        self.is_capture = self.capture_piece != None
+        
     def get_piece(self):
         return self.board.board_state[self.pos[0]][self.pos[1]]
     
     def capture_piece(self):
         return self.board.board_state[self.next_pos[1]][self.next_pos[0]]
-
-    def is_check(self):
-        attacked_pieces = self.board.attacked_pieces_white() if self.piece.color == 2 else self.board.attacked_pieces_black()
-        for piece in attacked_pieces:
-            if piece.type == 1: # King
-                return True
-        return False
-    
-    def is_mate(self):
-        return None
 
     def position_notation(self):
         return square_notation(self.next_pos)

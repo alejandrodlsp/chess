@@ -17,7 +17,7 @@ def get_legal_moves(piece, board):
             fsquare = board.get_at_position(fpos)
             if fsquare == None:
                 out_squares.append(fpos)
- 
+
     # check for capture left
     if x > 0:
         fpos = (x - 1, y + ymov)

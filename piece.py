@@ -19,12 +19,28 @@ class PieceColor(Enum):
     WHITE = 1
     BLACK = 2
 
+def opposite_color(color: PieceColor) -> PieceColor:
+    return PieceColor.WHITE if color == PieceColor.BLACK else PieceColor.BLACK
+
 class Piece:
     def __init__(self, pos, type = PieceType.PAWN, color = PieceColor.WHITE):
         self.pos = pos
         self.type = type
         self.color = color
+        self.moved = False
+        self.n_of_moves = 0
+        
+    def move(self, new_pos):
+        self.n_of_moves += 1
+        self.pos = new_pos
 
+    def move_back(self, last_pos):
+        self.n_of_moves -= 1
+        self.pos = last_pos
+    
+    def has_moved(self):
+        return self.n_of_moves > 0
+    
     def char(self):
         if self.type == PieceType.KING:
             return "K" if self.color == PieceColor.WHITE else "k"
@@ -42,7 +58,7 @@ class Piece:
 
     def color(self):
         return self.color
-    
+
     def get_legal_moves(self, board):
         if self.type == PieceType.BISHOP:
             return get_bishop_legal_moves(self, board)
@@ -58,7 +74,7 @@ class Piece:
             return get_pawn_legal_moves(self, board)
         else:
             return None
-        
+
     def is_legal_move(self, board, newpos):
         legal_moves = self.get_legal_moves(board)
         for move in legal_moves:
@@ -80,7 +96,7 @@ def get_piece_type_from_char(char):
     if char.lower() == 'p':
         return PieceType.PAWN
     return None
-    
+
 def get_char_piece_color(char):
     if char == '.':
         return None

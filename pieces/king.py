@@ -7,7 +7,7 @@ def get_legal_moves(piece, board):
     king_moves = [
         (1, 1), (1, -1), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 0), (-1, 1)
     ]
- 
+
     for move in king_moves:
         x1 = x + move[0];
         y1 = y + move[1];
@@ -16,7 +16,7 @@ def get_legal_moves(piece, board):
             square = board.get_at_position((x1, y1))
             if square == None or square.color != piece.color:
                 out_squares.append((x1, y1))
- 
+
     moves = []
     for m in out_squares:
         moves.append(Move((y,x), m, board))
